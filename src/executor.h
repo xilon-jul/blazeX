@@ -8,19 +8,27 @@
 #ifndef SRC_EXECUTOR_H_
 #define SRC_EXECUTOR_H_
 
-#include "../lib/hashmap.h"
-
 #define BUFFER_READ_SIZE 8192
 
+#include "../lib/linkedlist.h"
+
 typedef struct executor* Executor;
+typedef struct fullduplex_ipc_route* Route;
+
 
 struct executor {
 	struct event_base *eb;
 	short running;
-	map_t event_pid_map;
+	// A list maitaining pid to event
+	plist routes;
 	void (*start)(Executor e);
 	void (*shutdown)(Executor e);
 	int (*fork)(Executor e);
+};
+
+struct fullduplex_ipc_route {
+	unsigned int pid;
+	struct event* ev;
 };
 
 Executor blazex_executor_new();

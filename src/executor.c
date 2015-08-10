@@ -37,7 +37,6 @@ void blazex_executor_event_readcb(int fd, short flags, void* data){
 		case 0:
 			printf("End of file");
 			fflush(stdout);
-			event_del(((struct event*) data));
 			break;
 		default:
 			printf("Read %d bytes and buffer is %s", r, buffer);
@@ -57,7 +56,6 @@ Executor blazex_executor_new(){
 		fprintf(stderr, "Failed to create executor()");
 		exit(1);
 	}
-	e->event_pid_map = hashmap_new();
 	// Assign function pointers
 	e->shutdown = &blazex_executor_shutdown;
 	e->start = &blazex_executor_start;
@@ -86,8 +84,8 @@ int blazex_executor_fork(Executor e){
 		perror("Failed to create socket_pair()");
 		exit(0);
 	}
-	fcntl(pair[0], FNONBLOCK);
-	fcntl(pair[1], FNONBLOCK);
+	fcntl(pair[0], O_NONBLOCK);
+	fcntl(pair[1], O_NONBLOCK);
 	pid_t pid = fork();
 	char hkey[5];
 	switch(pid){
@@ -98,16 +96,10 @@ int blazex_executor_fork(Executor e){
 		// Children process
 		event_reinit(e->eb);
 		close(pair[0]);
-		struct event* readevc = event_new(e->eb, pair[1], EV_READ | EV_PERSIST, &blazex_executor_event_readcb,(void*)e);
-		event_add(readevc, NULL);
-		sprintf(hkey, "%d", getppid());
 		e->start(e);
 		break;
 	default:
 		printf("parent");
-		struct event* readevp = event_new(e->eb, pair[0], EV_READ | EV_PERSIST, &blazex_executor_event_readcb,(void*)e);
-		event_add(readevp, NULL);
-		write(pair[0], "test", 4);
 		break;
 	}
 	return pid;
