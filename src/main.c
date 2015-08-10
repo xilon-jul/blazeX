@@ -1,8 +1,9 @@
 #include <stdlib.h>
 #include "executor.h"
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
-#include "utils.h";
+#include "utils.h"
 #include "../lib/linkedlist.h"
 
 
@@ -24,8 +25,19 @@ int main() {
 	void f(void* data){
 		printf("%s\n", (char*)data);
 	}
+        int match(void* data){
+            if(strcmp((char*)data, "b") == 0){
+                return 1;
+            }
+            return 0;
+        }
 	char s[12];
-	long_to_string(12, s);
-printf("long to string : %s", s);
-	list_iterate(l, f);
+        plist out = list_new();
+        list_search_node(l, out, match);
+	//list_iterate(l, f);
+	list_iterate(out, f);
+        list_free(out);
+        plist test = NULL;
+        printf("List is null ? %d", test == NULL);
+        return 0;
 }
