@@ -2,7 +2,11 @@
 #include "stdlib.h"
 #include "stdio.h"
 
-struct linkedlDoubledLinkedListist* list_new(){
+/**
+ * Allocates a new doubled linked list
+ * @return a pointer to a DoubledLinkedList structure
+ */
+DoubledLinkedList list_new(){
 	DoubledLinkedList l = malloc(sizeof(struct linkedlist));
 	l->head = NULL;
 	l->tail = NULL;
@@ -10,6 +14,9 @@ struct linkedlDoubledLinkedListist* list_new(){
 	return l;
 }
 
+/**
+ * Add a node to the beginning of the list
+ */
 Node list_add_node_head(DoubledLinkedList list, void* data){
 	Node n = (Node) malloc(sizeof(struct node));
 	if(n == NULL){

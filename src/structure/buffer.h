@@ -19,17 +19,28 @@ struct buffer {
 	char* buffer;
 };
 
+/**
+ * Allocates a new byte buffer of size size + 1 (for the null char)
+ */
 ByteBuffer buffer_allocate(unsigned int size);
 
-
+/**
+ * Free the mem of the buffer
+ */
 void buffer_free(ByteBuffer b);
 
 /**
- * Copy out the first len bytes from the buffer to out pointer
- * and reduce the size of underlying buffer
+ * Drained "len" bytes from buffer starting at offset 0.
+ * Copy out the first len bytes from the buffer to out pointer. Out pointer should be already be allocated
+ * Might also shrink the buffer size
+ * @return NULL if a mem operation fails, a pointer to the buf structure otherwise
  */
 void* buffer_drain(ByteBuffer buf, int len, char* out);
 
+/**
+ * Add bytes to the buffer and re-allocate memory if needed
+ * @return NULL if a mem operaiton fails, a pointer to the ByteBuffer structure otherwise
+ */
 void* buffer_add_data(ByteBuffer buf, char* data);
 
 #endif /* SRC_BUFFER_H_ */
