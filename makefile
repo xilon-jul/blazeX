@@ -2,14 +2,13 @@ OBJS = adserver
 CC = gcc
 DEBUG = -gstabs
 SRC_INCLUDE = ./src/
-LIB_INCLUDE = ./lib/
 OUTPUT_DIR = ./build/
 LIBS = event
 CFLAGS = -Wall -std=c11 -c $(DEBUG) -I $(SRC_INCLUDE)
 LFLAGS = -Wall $(DEBUG) -l$(LIBS)
 BINARY = ./bin/blazeo
 
-SOURCES :=  $(wildcard $(LIB_INCLUDE)*.c) $(wildcard $(SRC_INCLUDE)*.c)
+SOURCES := $(shell find ./src/ -iname '*.c')
 OBJS := $(patsubst %.c,%.o,$(SOURCES))
 
 %.o: %.c
