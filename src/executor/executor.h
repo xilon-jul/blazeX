@@ -10,8 +10,6 @@
 
 #define BUFFER_READ_SIZE 8192
 
-#include "../lib/linkedlist.h"
-
 typedef struct executor* Executor;
 typedef struct fullduplex_ipc_route* Route;
 
@@ -20,7 +18,6 @@ struct executor {
 	struct event_base *eb;
 	short running;
 	// A list maitaining pid to event
-	plist routes;
 	void (*start)(Executor e);
 	void (*shutdown)(Executor e);
 	int (*fork)(Executor e);

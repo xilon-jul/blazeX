@@ -3,9 +3,9 @@
 #include <string.h>
 #include <sys/types.h>
 
-pbuffer buffer_allocate(unsigned int size){
+ByteBuffer buffer_allocate(unsigned int size){
 	// Allocate a new buffer
-	pbuffer b = (pbuffer) malloc(sizeof(pbuffer));
+	ByteBuffer b = (ByteBuffer) malloc(sizeof(ByteBuffer));
 	if(b == NULL){
 		return NULL;
 	}
@@ -23,14 +23,14 @@ pbuffer buffer_allocate(unsigned int size){
 	return b;
 }
 
-void buffer_free(pbuffer b){
+void buffer_free(ByteBuffer b){
 	free(b->buffer);
 	b->buffer = NULL;
 	free(b);
 	b = NULL;
 }
 
-void buffer_drain(pbuffer buf, int len, char* out){
+void* buffer_drain(ByteBuffer buf, int len, char* out){
 	strncpy(out, buf->buffer, len);
 	*(out + len) = '\0';
 	// Over lapping move of the memory bytes
@@ -42,29 +42,29 @@ void buffer_drain(pbuffer buf, int len, char* out){
 	// Shrink the size if ok
 	// Reduce to fit initial chunk size
 	int nb_chunk = len / buf->size + 1;
-	if(nb_chunk <= 1){
-			return;
-	}
 	int nsize = buf->current_size - ((nb_chunk-1) * buf->size);
-	if(nsize == 0) return;
+	if(nb_chunk <= 1 || nsize == 0){
+			return buf;
+	}
 	if(NULL == realloc(buf->buffer, sizeof(char) * nsize + 1)){
 		perror("realloc() failed");
-		return;
+		return NULL;
 	}
+	return buf;
 }
 
-int buffer_add_data(pbuffer buf, char* data){
+void* buffer_add_data(ByteBuffer buf, char* data){
 	unsigned int dlen = strlen(data);
 	if(buf->offset + 1 + dlen > buf->size){
 		// What is the good factor to hold new data ?
 		unsigned int s = dlen % buf->size == 0 ? dlen / buf->size : dlen / buf->size + 1;
 		printf("Expand buffer with old size = %d new size %d", buf->size, buf->size * s);
 		if(NULL == realloc(buf->buffer, sizeof(char) * buf->size * s)){
-			return 0;
+			return NULL;
 		}
 		buf->current_size = buf->size * s;
 	}
 	strcpy(buf->buffer + buf->offset, data);
 	buf->offset += strlen(data);
-	return 1;
+	return buf;
 }

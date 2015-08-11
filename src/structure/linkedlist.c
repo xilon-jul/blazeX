@@ -1,17 +1,17 @@
-#include "../lib/linkedlist.h"
+#include "linkedlist.h"
 #include "stdlib.h"
 #include "stdio.h"
 
-struct linkedlist* list_new(){
-	plist l = malloc(sizeof(struct linkedlist));
+struct linkedlDoubledLinkedListist* list_new(){
+	DoubledLinkedList l = malloc(sizeof(struct linkedlist));
 	l->head = NULL;
 	l->tail = NULL;
 	l->size = 0;
 	return l;
 }
 
-pnode list_add_node_head(plist list, void* data){
-	pnode n = (pnode) malloc(sizeof(struct node));
+Node list_add_node_head(DoubledLinkedList list, void* data){
+	Node n = (Node) malloc(sizeof(struct node));
 	if(n == NULL){
 		perror("Could not allocate new node");
 		return 0;
@@ -23,7 +23,7 @@ pnode list_add_node_head(plist list, void* data){
 		list->head = n;
 	}
 	else {
-		pnode head = list->head;
+		Node head = list->head;
 		n->next = head;
 		head->prev = n;
 		list->head = n;
@@ -35,8 +35,8 @@ pnode list_add_node_head(plist list, void* data){
 	return n;
 }
 
-pnode list_add_node_tail(plist list, void* data){
-	pnode n = (pnode) malloc(sizeof(struct node));
+Node list_add_node_tail(DoubledLinkedList list, void* data){
+	Node n = (Node) malloc(sizeof(struct node));
 	if(n == NULL){
 		perror("Could not allocate new node");
 		return 0;
@@ -55,11 +55,11 @@ pnode list_add_node_tail(plist list, void* data){
 	return n;
 }
 
-void list_search_node(plist list, plist out, int (*match_cb)(void*)){
+void list_search_node(DoubledLinkedList list, DoubledLinkedList out, int (*match_cb)(void*)){
     if(out == NULL){
         return;
     }
-    pnode n = list->head;
+    Node n = list->head;
     while(n != NULL){
         if(1 == match_cb(n->data)){
             list_add_node_tail(out, n->data);
@@ -69,13 +69,13 @@ void list_search_node(plist list, plist out, int (*match_cb)(void*)){
     return;
 }
 
-int list_del_node(plist list, pnode node){
+void list_del_node(DoubledLinkedList list, Node node){
 	if(list->size == 1){
 		list->head = list->tail = NULL;
 	}
 	else {
-		pnode after = node->next;
-		pnode before = node->prev;
+		Node after = node->next;
+		Node before = node->prev;
 		if(before != NULL){
 			before->next = after;
 		}
@@ -86,20 +86,19 @@ int list_del_node(plist list, pnode node){
 	free(node);
 	node = NULL;
 	list->size--;
-	return 0;
 }
 
-void list_iterate(plist list, void (*print_cb)(void*)){
-	pnode n = list->head;
+void list_iterate(DoubledLinkedList list, void (*print_cb)(void*)){
+	Node n = list->head;
 	while(n != NULL){
 		print_cb(n->data);
 		n = n->next;
 	}
 }
 
-void list_free(plist list){
-    pnode next = list->head;
-    pnode n;
+void list_free(DoubledLinkedList list){
+    Node next = list->head;
+    Node n;
     while(next != NULL){
         n = next->next;
         free(next);
