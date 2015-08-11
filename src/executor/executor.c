@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include "../util/utils.h"
 
 
 // Event part of executor
@@ -65,6 +66,24 @@ Executor blazex_executor_new(){
 		exit(0);
 	}
 	return e;
+}
+
+void blazex_executor_join_group(Executor e, const char* group){
+	for(int i=0; i< NELEMS(e->groups); i++){
+		if(e->groups[i][0] == '\0'){
+			strncpy(e->groups[i], group, EXECUTOR_MAX_GROUP_NAME_LEN);
+			break;
+		}
+	}
+}
+
+void blazex_executor_quit_group(Executor e,  const char* group){
+	for(int i=0; i< NELEMS(e->groups); i++){
+		if(strcmp(e->groups[i], group) == 0){
+			memset(e->groups[i], 0x0, EXECUTOR_MAX_GROUP_NAME_LEN);
+			return;
+		}
+	}
 }
 
 void blazex_executor_shutdown(Executor e){
