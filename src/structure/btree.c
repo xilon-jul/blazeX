@@ -21,10 +21,10 @@ BinaryTree binary_tree_new(void* data){
  * Free all the memory taken by a binary tree
  * @return void
  */
-void binary_tree_free(BinaryTree tree){
-	binary_tree_node_free(&(tree->root));
-	free(tree);
-	tree = NULL;
+void binary_tree_free(BinaryTree *tree){
+	binary_tree_node_free(&((*tree)->root));
+	free(*tree);
+	*tree = NULL;
 }
 
 /**
@@ -48,7 +48,6 @@ BinaryTreeNode binary_tree_node_new(void* data){
  */
 void binary_tree_node_free(BinaryTreeNode *node){
 	void free_cb(BinaryTreeNode* n){
-		printf("Free node with ptr %p\n", *n);
 		if((*n)->left != NULL){
 			(*n)->left = NULL;
 		}

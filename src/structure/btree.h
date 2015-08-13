@@ -41,7 +41,7 @@ BinaryTree binary_tree_new(void* data);
  * Free all the memory taken by a binary tree
  * @return void
  */
-void binary_tree_free(BinaryTree tree);
+void binary_tree_free(BinaryTree *tree);
 
 /**
  * Allocates a new binary tree node with data as node's value

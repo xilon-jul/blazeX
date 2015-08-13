@@ -52,6 +52,9 @@ void test_binary_tree_free(){
 	assert( strcmp(node[0], "c") == 0 );
 	assert( strcmp(node[1], "a") == 0 );
 	assert( node[2][0] == '\0' );
+
+	binary_tree_free(&t);
+	assert(t == NULL);
 }
 
 
