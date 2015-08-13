@@ -9,15 +9,20 @@ LFLAGS = -Wall $(DEBUG) -l$(LIBS)
 BINARY = ./bin/blazex
 TEST_BINARY = ./bin/test_blazex
 
-SOURCES := $(shell find ./src/ -iname '*.c')
-OBJS := $(patsubst %.c,%.o,$(SOURCES))
+SOURCES := $(shell find ./ -iname '*.c')
+# Objects for main
+OBJS := $(patsubst %.c,%.o,$(subst ./test/test.c,,$(SOURCES)))
+TEST_OBJS := $(patsubst %.c,%.o,$(subst ./src/main.c,,$(SOURCES)))
+
+# Objects for test binary
+
 
 %.o: %.c
 	@echo Compiling "$@" using "$<"
 	$(CC) $(CFLAGS) -o "$@" "$<"
 
-test: $(OBJS)
-	$(CC) $(LFLAGS) -o $(TEST_BINARY) $(OBJS)
+test: $(TEST_OBJS)
+	$(CC) $(LFLAGS) -o $(TEST_BINARY) $(TEST_OBJS)
 	
 all: $(OBJS)
 	$(CC) $(LFLAGS) -o $(BINARY) $(OBJS)
@@ -25,7 +30,7 @@ all: $(OBJS)
 clean:
 	@echo "Sources = $(SOURCES)"
 	@echo "Objects = $(OBJS)"
-	rm -Rf $(BINARY) $(OBJS) $(TEST_BINARY)
+	rm -Rf $(BINARY) $(OBJS) $(TEST_OBJS) $(TEST_BINARY)
 	
 
 
