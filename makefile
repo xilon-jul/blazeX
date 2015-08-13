@@ -17,7 +17,7 @@ OBJS := $(patsubst %.c,%.o,$(SOURCES))
 	$(CC) $(CFLAGS) -o "$@" "$<"
 
 test: $(OBJS)
-	$(CC) $(LFLAGS)) -o $(TEST_BINARY)) $(OBJS)
+	$(CC) $(LFLAGS) -o $(TEST_BINARY) $(OBJS)
 	
 all: $(OBJS)
 	$(CC) $(LFLAGS) -o $(BINARY) $(OBJS)
