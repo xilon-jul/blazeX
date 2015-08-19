@@ -55,14 +55,14 @@ void list_search_node(DoubledLinkedList list, DoubledLinkedList dest, int (*matc
  * Complexity: O(1)
  * @return void
  */
-void list_del_node(DoubledLinkedList list, Node node);
+void list_del_node(DoubledLinkedList list, Node *node);
 
 /**
  * Iterates over a doubled linked list starting from the head
  * Invokes the print_cb callback with the node's data as argument
  * @return void
  */
-void list_iterate(DoubledLinkedList list, void(*print_cb)(void*));
+void list_iterate(DoubledLinkedList list, void(*print_cb)(Node));
 
 /**
  * Free a list structure and all of its nodes

@@ -13,6 +13,7 @@ BinaryTree create_btree(){
 	binary_tree_add_node(&t->root, "c", BINARY_TREE_NODE_SIDE_RIGHT);
 	return t;
 }
+
 void test_binary_tree_traversal(){
 	BinaryTree t = create_btree();
 	char node[3][16];
@@ -57,10 +58,35 @@ void test_binary_tree_free(){
 	assert(t == NULL);
 }
 
+// Linked list test
+
+void test_linkedlist_iterate(){
+	DoubledLinkedList l = list_new();
+	Node n1 = list_add_node_head(l, "3");
+	Node n2 = list_add_node_head(l, "2");
+
+	char node[3][16] = {{0},{0},{0}};
+	int j = 0;
+	void f(Node n){
+		strcpy(node[j++], n->data);
+	}
+	list_iterate(l, f);
+	// head-> 2 -> 3 -> NULL
+	assert ( l->size == 2 );
+	assert( strcmp(node[0], "2") == 0 );
+	assert( strcmp(node[1], "3") == 0 );
+
+	// Remove last node, make sure head and tail points to the same node
+	list_del_node(l, n1); // head->2->NULL
+	assert ( l->size == 1 );
+	assert ( l->head == n2 );
+	assert ( l->tail == n2 );
+}
 
 int main() {
 	test_binary_tree_traversal();
 	test_binary_tree_free();
+	test_linkedlist_iterate();
 	return 0;
 }
 

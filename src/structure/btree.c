@@ -55,7 +55,6 @@ void binary_tree_node_free(BinaryTreeNode *node){
 			(*n)->right = NULL;
 		}
 		free(*n);
-		printf("freeing %p", *n);
 		*n = NULL;
 	}
 	free_cb(node);

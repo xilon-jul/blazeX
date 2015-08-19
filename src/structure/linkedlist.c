@@ -76,13 +76,13 @@ void list_search_node(DoubledLinkedList list, DoubledLinkedList out, int (*match
     return;
 }
 
-void list_del_node(DoubledLinkedList list, Node node){
+void list_del_node(DoubledLinkedList list, Node *node){
 	if(list->size == 1){
 		list->head = list->tail = NULL;
 	}
 	else {
-		Node after = node->next;
-		Node before = node->prev;
+		Node after = (*node)->next;
+		Node before = (*node)->prev;
 		if(before != NULL){
 			before->next = after;
 		}
@@ -90,15 +90,15 @@ void list_del_node(DoubledLinkedList list, Node node){
 			after->prev = before;
 		}
 	}
-	free(node);
-	node = NULL;
+	free(*node);
+	*node = NULL;
 	list->size--;
 }
 
-void list_iterate(DoubledLinkedList list, void (*print_cb)(void*)){
+void list_iterate(DoubledLinkedList list, void (*print_cb)(Node)){
 	Node n = list->head;
 	while(n != NULL){
-		print_cb(n->data);
+		print_cb(n);
 		n = n->next;
 	}
 }

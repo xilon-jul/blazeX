@@ -7,7 +7,7 @@ LIBS = event
 CFLAGS = -Wall -std=c11 -c $(DEBUG) -I $(SRC_INCLUDE)
 LFLAGS = -Wall $(DEBUG) -l$(LIBS)
 BINARY = ./bin/blazex
-TEST_BINARY = ./bin/test_blazex
+TEST_BINARY = ./bin/test_blazexx
 
 SOURCES := $(shell find ./ -iname '*.c')
 # Objects for main
