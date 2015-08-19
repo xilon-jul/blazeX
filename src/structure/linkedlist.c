@@ -90,6 +90,9 @@ void list_del_node(DoubledLinkedList list, Node *node){
 			after->prev = before;
 		}
 	}
+	if(*node == list->tail){
+		list->tail = list->tail->prev;
+	}
 	free(*node);
 	*node = NULL;
 	list->size--;

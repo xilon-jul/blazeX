@@ -73,14 +73,22 @@ void test_linkedlist_iterate(){
 	list_iterate(l, f);
 	// head-> 2 -> 3 -> NULL
 	assert ( l->size == 2 );
+	assert ( l->head == n2 );
+	assert ( l->tail == n1 );
 	assert( strcmp(node[0], "2") == 0 );
 	assert( strcmp(node[1], "3") == 0 );
 
 	// Remove last node, make sure head and tail points to the same node
-	list_del_node(l, n1); // head->2->NULL
+	list_del_node(l, &n1); // delete 3 would give head->2->NULL
 	assert ( l->size == 1 );
 	assert ( l->head == n2 );
 	assert ( l->tail == n2 );
+	assert ( n1 == NULL );
+
+	list_del_node (l, &n2);
+	assert ( l->size == 0 );
+	assert ( l->head == NULL );
+	assert ( l->tail == NULL );
 }
 
 int main() {
