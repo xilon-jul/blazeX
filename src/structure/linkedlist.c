@@ -15,6 +15,18 @@ DoubledLinkedList list_new(){
 }
 
 /**
+ * Allocates a new doubled linked list
+ * @return a pointer to a DoubledLinkedList structure
+ */
+DoubledLinkedList2 list_new_2(){
+	DoubledLinkedList2 l = malloc(sizeof(struct linkedlist));
+	l->head = NULL;
+	l->tail = NULL;
+	l->size = 0;
+	return l;
+}
+
+/**
  * Add a node to the beginning of the list
  */
 Node list_add_node_head(DoubledLinkedList list, void* data){
@@ -53,13 +65,33 @@ Node list_add_node_tail(DoubledLinkedList list, void* data){
 	if(list->size != 0){
 		list->tail->next = n;
 		n->prev = list->tail;
-	        list->tail = n;
+	    list->tail = n;
 	}
-        else {
-            list->head = list->tail = n;
-        }
-        list->size++;
+    else {
+    	list->head = list->tail = n;
+    }
+    list->size++;
 	return n;
+}
+
+Node2 list_add_node_tail_2(DoubledLinkedList2 list, Node2* n, void* data){
+	*n = (Node2) malloc(sizeof(struct node2));
+	if(*n == NULL){
+		perror("Could not allocate new node");
+		return 0;
+	}
+	(*n)->data = data;
+	(*n)->next = NULL;
+	if(list->size != 0){
+		(*list->tail)->next = n;
+		(*n)->prev = list->tail;
+	    list->tail = n;
+	}
+    else {
+    	list->head = list->tail = n;
+    }
+    list->size++;
+	return *n;
 }
 
 void list_search_node(DoubledLinkedList list, DoubledLinkedList out, int (*match_cb)(void*)){
@@ -77,24 +109,30 @@ void list_search_node(DoubledLinkedList list, DoubledLinkedList out, int (*match
 }
 
 void list_del_node(DoubledLinkedList list, Node *node){
-	if(list->size == 1){
-		list->head = list->tail = NULL;
+	list_del_node_soft(list, node);
+	free(*node);
+	*node = NULL;
+}
+
+/**
+ * Softly removes a node. Does not free the memory taken by the node
+ */
+void list_del_node_soft(DoubledLinkedList list, Node *node){
+	// Make previous node point to next node and next node->prev points to previous node
+	Node after = (*node)->next;
+	Node before = (*node)->prev;
+	if(before != NULL){
+		before->next = after;
 	}
-	else {
-		Node after = (*node)->next;
-		Node before = (*node)->prev;
-		if(before != NULL){
-			before->next = after;
-		}
-		if(after != NULL){
-			after->prev = before;
-		}
+	if(after != NULL){
+		after->prev = before;
 	}
 	if(*node == list->tail){
 		list->tail = list->tail->prev;
 	}
-	free(*node);
-	*node = NULL;
+	if(*node == list->head && list->head != list->tail){
+		list->head = list->head->next;
+	}
 	list->size--;
 }
 
@@ -106,17 +144,56 @@ void list_iterate(DoubledLinkedList list, void (*print_cb)(Node)){
 	}
 }
 
-void list_free(DoubledLinkedList list){
-    Node next = list->head;
-    Node n;
-    while(next != NULL){
-        n = next->next;
-        free(next);
-        next = NULL;
-        next = n;
+/**
+ * Removes or "pops" the node at the end of list
+ * The node's linkage are destroyed, but the node is not freed
+ * @return Node pointer or NULL
+ */
+Node list_pop(DoubledLinkedList list){
+	if(list->tail == NULL) return NULL;
+	Node pop = list->tail;
+	list_del_node_soft(list, &list->tail);
+	return pop;
+}
+
+/**
+ * Removes the node at the beginning of the list
+ * Node is not freed, it is your responsability to free the node
+ * @return Node pointer or NULL
+ */
+Node list_unshift(DoubledLinkedList list){
+	if(list->head == NULL) return NULL;
+	Node pop = list->head;
+	list_del_node_soft(list, &list->head);
+	return pop;
+}
+
+void list_free(DoubledLinkedList* list){
+    Node *current = &((*list)->head);
+    Node *tmp;
+    while(*current != NULL){
+    	tmp = &((*current)->next);
+    	free(*current);
+    	*current = NULL;
+    	current = tmp;
     }
-    list->head = NULL;
-    list->tail = NULL;
-    free(list);
-    list = NULL;
+    (*list)->head = NULL;
+    (*list)->tail = NULL;
+    free(*list);
+    *list = NULL;
+}
+
+void list_free_2(DoubledLinkedList2* list){
+    Node2 *current = (*list)->head;
+    Node2 *tmp;
+    while(current != NULL){
+    	tmp = (*current)->next;
+    	free(*current);
+    	*current = NULL;
+    	current = tmp;
+    }
+    (*list)->head = NULL;
+    (*list)->tail = NULL;
+    free(*list);
+    *list = NULL;
 }

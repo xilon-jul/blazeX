@@ -1,5 +1,4 @@
-# blazeX
-
+# BlazeX
 - blazeX binary is designed to work asynchronously with  I/O events at a process level. Once an I/O event is considered completed, it translates the event into a set of organized jobs able to be dispatched and synchronize against multiple threads.
 - Each process can hold its own set of events
 - When an operation occurs on an event, the event stream parser takes care of translating the input data stream into a global symbol map. Suppose you receive an HTTP request with http:<host>?a=1&b=bob (the symbol table should expose var a type int with 1 as its value and b of type char*(16) with "bob" as value. This process is called the extract/transform process or data mapping.
@@ -12,12 +11,28 @@
   - optionally aggregate any result
   - optionally sort result
 - Asynchronous multi-process worker with task_queue(); and worker that executes jobs from task queues when available (a job is a either a map, reduce, sort execution chain). A job belons to a group, a group of job can be scaled at thread-level
-- Maintain data inside a single bucket: 
-<code> 
-hashmap (char* list_name, hashmap( fieldname, struct field { char* type; }) ), struct data_structure* format, hashmap(index_name, struct data_index indexes) , plist dataset). </code> A field structure maintains a max size fixed at compile time
-- Supported field structure data types: <code>int, double, short, char* (n), void* data[n]</code>
+
+Maintain data inside a single bucket: 
+```c 
+hashmap (char* list_name, hashmap( fieldname, struct field { char* type; }) ), struct data_structure* format, hashmap(index_name, struct data_index indexes) , plist dataset).
+'''
+
+A field structure maintains a max size fixed at compile time
+- Supported field structure data types: ```c int, double, short, char* (n), void* data[n]```
 - Support binding between sets. A binding is expressed using a "binding expression" attached to a list inside a bucket, when the expression matches a pointer to the node is created inside the origin node. Suppose, you have a set of campaigns (which contains field of type: name:string, is_active:short). Publishers have a filtered inventory of campaign, then you could just
 add each publishers for each campaign node into a field of type array, or more easily you add all your publishers into a distinct set and define a binding expression that will create for each campaign node a list of pointers to each publishers mapping the expression.
+
+# BlazeX configuration
+# In-memory storage
+
+## Dataset operations
+ * Insert data based on an expression
+ * Delete data 
+ 
+## Shared memory internal
+[See shm usage](http://www.cs.cf.ac.uk/Dave/C/node27.html)
+
+# Logging features
 - Uses syslog as daemon logging
 
 ## Query language definition
@@ -33,7 +48,7 @@ The memory allocator should allocate memory or take care of these components :
 
 - A query must be "read simple" to reduce parsing time, it should stick to a simple inline format with a field separator
   - eg: point CAMPAIGNS;  (list.campaign_id > 12 and list.campaign_name ~ /$bob/ and list.publishers.category ~ '/cat/');;list.name asc;
-
+  - eg: list.boolean = true and 
 
 ## Bench
 A structure set of type { int f1; char* field2 (16 char  long); } containings 10^9 elements 

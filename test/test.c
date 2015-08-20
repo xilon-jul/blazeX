@@ -89,12 +89,61 @@ void test_linkedlist_iterate(){
 	assert ( l->size == 0 );
 	assert ( l->head == NULL );
 	assert ( l->tail == NULL );
+	assert ( n2 == NULL );
+
+	list_free(&l);
+	assert ( l == NULL );
+}
+
+void test_linkedlist_insert(){
+	DoubledLinkedList2 l = list_new_2();
+	Node2 ptr;
+	list_add_node_tail_2(l, &ptr, "3");
+	Node2 ptr2;
+	list_add_node_tail_2(l, &ptr2, "4");
+	Node2 ptr3;
+	list_add_node_tail_2(l, &ptr3, "5");
+	assert( l->head == &ptr );
+	list_free_2(&l);
+	assert ( ptr == NULL );
+	assert ( ptr2 == NULL );
+	assert ( ptr3 == NULL );
+}
+
+void test_linkedlist_stack_usage(){
+	DoubledLinkedList l = list_new();
+	Node n1 = list_add_node_tail(l, "3");
+	assert ( l->head == l->tail );
+	Node n2 = list_add_node_tail(l, "2");
+	assert ( l->head != l->tail && l->head != NULL);
+	assert ( l->head == n1 );
+	assert ( l->tail == n2 );
+	Node pop = list_pop(l);
+	assert ( pop == n2 );
+	// head -> 3 -> NULL
+	assert ( l->tail == n1 );
+	assert ( l->head == l->tail );
+	assert ( l->size == 1 );
+
+	// Test unshift head->3->2->NULL
+	Node n3 = list_add_node_tail(l, "2");
+	Node shift = list_unshift(l);
+	assert ( shift == n1 );
+	assert ( l->head == n3 );
+	assert ( l->tail == l->head );
+
+	list_free(&l);
+	assert ( l == NULL );
 }
 
 int main() {
+	// Tree tests
 	test_binary_tree_traversal();
 	test_binary_tree_free();
+	// Linkedlist test
 	test_linkedlist_iterate();
+	test_linkedlist_stack_usage();
+	test_linkedlist_insert();
 	return 0;
 }
 
