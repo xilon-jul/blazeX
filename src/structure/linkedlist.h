@@ -8,63 +8,40 @@
 #ifndef LIB_LINKEDLIST_H_
 #define LIB_LINKEDLIST_H_
 
-typedef struct node2* Node2;
 typedef struct node* Node;
 typedef struct linkedlist* DoubledLinkedList;
-typedef struct linkedlist2* DoubledLinkedList2;
 
 struct node {
-	Node prev;
-	Node next;
-	void* data;
-};
-
-
-struct node2 {
-	Node2* prev;
-	Node2* next;
+	Node* prev;
+	Node* next;
 	void* data;
 };
 
 
 struct linkedlist {
-	Node head;
-	Node tail;
+	Node* head;
+	Node* tail;
 	int size;
 };
-
-struct linkedlist2 {
-	Node2* head;
-	Node2* tail;
-	int size;
-};
-
-
-/**
- * Allocates a new doubled linked list
- */
-DoubledLinkedList list_new();
 
 /*
 * Allocates a new doubled linked list
 */
-DoubledLinkedList2 list_new_2();
+DoubledLinkedList list_new();
 
 /**
  * Add a new node with the given data to the beginning of the list
  * Complexity: O(1)
  * @return a pointer to the node added
  */
-Node list_add_node_head(DoubledLinkedList list, void* data);
+Node list_add_node_head(DoubledLinkedList list, Node* node, void* data);
 
 /**
  * Add a new node with the given data to the end of the list
  * Complexity: O(1)
  * @return a pointer to the node added
  */
-Node list_add_node_tail(DoubledLinkedList list, void* data);
-
-Node2 list_add_node_tail_2(DoubledLinkedList2 list, Node2* node, void* data);
+Node list_add_node_tail(DoubledLinkedList list, Node* node, void* data);
 
 /**
  * Search for nodes matching the filter callback function.
@@ -111,11 +88,6 @@ Node list_unshift(DoubledLinkedList list);
  * Free a list structure and all of its nodes
  */
 void list_free(DoubledLinkedList *list);
-
-/**
- * Free a list structure and all of its nodes
- */
-void list_free_2(DoubledLinkedList2 *list);
 
 
 #endif /* LIB_LINKEDLIST_H_ */
