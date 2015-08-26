@@ -63,17 +63,6 @@ Node list_add_node_tail(DoubledLinkedList list, Node* n, void* data){
 	return *n;
 }
 
-void list_search_node(DoubledLinkedList list, DoubledLinkedList out, int (*match_cb)(void*)){
-	Node* current = list->head;
-	while(current != NULL){
-		if(1 == match_cb((*current)->data)){
-			Node n;
-			list_add_node_tail(out, &n, *current);
-		}
-		current = (*current)->next;
-	}
-}
-
 void list_del_node(DoubledLinkedList list, Node *node){
 	list_del_node_soft(list, node);
 	free(*node);

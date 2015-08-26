@@ -1,7 +1,21 @@
 # BlazeX
 
-## Overview
+## Keep it simply simple
 
+- Worker process management
+	- Fork multiple workers as needed
+	- Detach worker from its controlling terminal
+- Shared memory management
+- Flood routing algorithm for inter-process communication, can emulate broadcast, unicast, multicast messages
+- Main thread works with read/write IO
+- Thread pool management
+	- Threads are created on the fly until WORKER_THREAD_TRESHOLD is reached
+	- When reached, jobs are queued and when a thread terminates, it will notify the master pool thread that it can execute the task
+- Any runtime thread that needs to work with IO MUST only __notify__ (as main thread is running inside libev main loop, notify means make the event pending) the main IO thread that data are available for writing and might also re-order the pending IO events to make write event have a highest priority
+Notification are done within a job thread, it invokes a specific method that adds the bytes to the buffer associated to a route and then make this route active until there are bytes to consume
+
+
+## Overview
 - BlazeX binary is designed to work asynchronously with  I/O events at a process level. Once an I/O event is considered completed, it translates the event into a set of organized jobs able to be dispatched and synchronize against multiple threads.
 - Each process can hold its own set of events
 - When an operation occurs on an event, the event stream parser takes care of translating the input data stream into a global symbol map. Suppose you receive an HTTP request with http:<host>?a=1&b=bob (the symbol table should expose var a type int with 1 as its value and b of type char*(16) with "bob" as value. This process is called the extract/transform process or data mapping.
@@ -47,12 +61,18 @@ add each publishers for each campaign node into a field of type array, or more e
  	blx> define;publishers;'{name:"pub_name", type: string, size: 16 }'
  	blx> r:ok
 ```
-* Pushing data to a bucket
+* Copying data to a bucket
 
-	_Format_: "action";"bucket to add data to";"field list expression";
+Copying action has 2 forms. The 1st one copies data from the terminal to the bucket in which case you need to indicate the end of data using \.. 
+
+	_Format_: "action";"null char";"bucket to add data to";"field list expression";"file";
 	
 ```
-	blx> add;[ { campaign_name: "zynga", active: true }, { campaign_name: "uber", active: false }, { campaign_name: "zynna", active: true } ]
+	blx> copy; bucket;\N;field1,field2;;
+	blx> .... 
+	blx> \.
+
+	blx> copy; bucket; \N; field1,field2; file.csv;
 ```
 * Reading data from a bucket
 ```
@@ -124,26 +144,35 @@ void* blx_db_read_data_field(struct blx_db_bucket* bucket, struct blx_db_data_fi
 ## Shared memory internal
 [See shm usage](http://www.cs.cf.ac.uk/Dave/C/node27.html)
 
-
-
 ## Query language definition
-- A binary tree structure is used to compile the char* expression string. Binary tree is then traversed, result is stored and dispatched to any I/O routes that expect to write back the result data.
-- The result data MUST NOT BE a copy of the reference bucket data set. Make simply the result list be a set of pointers to the referenced dataset.
- For a simple list of 4 millions element, we would have sizeof(list) + 4m elements * sizeof(void*) => 3906 Kb => 3.8 Mb to copy a large result set. More generally speaking a result set would have to store more than 1 pointer (so the size would double or triple depending on how many bindings a set has)
+Query language **MUST** rely on a simple form to reduce parsing time. As all we need to store can fit into a tabular format, we will stick to CSV.
 
-This makes each copy of, query on, a dataset have a limited size can be be expressed
+A query response **MUST AVOID** copying the original when streaming back the result. In the worst case, it should **ONLY** maintain a pointer to the orignal node in the list containing the bytes
+to be streamed. **Note** that some query might return data that are taken from a node's content, therefor, the data must be copied and the copy must be kept until it gets streamed.
 
-The memory allocator should allocate memory or take care of these components :
- - Result storage segment
- - Runtime segment (all but result storage segment) 
 
-- A query must be "read simple" to reduce parsing time, it should stick to a simple inline format with a field separator
-  - eg: point CAMPAIGNS;  (list.campaign_id > 12 and list.campaign_name ~ /$bob/ and list.publishers.category ~ '/cat/');;list.name asc;
-  - eg: list.boolean = true 
+### How can we interact with a data set ?
+
+Each dataset can be queried using a string expression which (by the use of [Shunting Yard Algorithm] (https://en.wikipedia.org/wiki/Shunting-yard_algorithm) ) will be transformed into a traversable output queue and interpreted.
+
+Supported operators :
+- op1 **~** op2  : Returns true if op1 matches the regexp op2
+- op1 **and** op2 
+- op1 **or** op2 
+- op1 **==** op2
+- op1 **+** op2
+- op1 **/** op2
+- op1 **x** op2
+- var **=** expr
 
 ## Bench
-A structure set of type { int f1; char* field2 (16 char  long); } containings 10^9 elements 
-would result in an in-memory size of : (10^9) * 20 + 5 =  953.67 Mbytes = 9,4Gb
+
+## Resources
+[ GNU libc ] (http://www.gnu.org/software/libc/manual/html_node/index.html#SEC_Contents)
+[ Is Parallel Programming Hard, And, If So, What Can You Do About It? ] (https://www.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook.2015.01.31a.pdf)
+[ Thread wait/notify using phread ] (http://maxim.int.ru/bookshelf/PthreadsProgram/htm/r_28.html)
+
+
 
 
 

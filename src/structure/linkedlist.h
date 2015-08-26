@@ -11,6 +11,9 @@
 typedef struct node* Node;
 typedef struct linkedlist* DoubledLinkedList;
 
+/**
+ * Documentation about locking: http://research.microsoft.com/pubs/67089/2001-disc.pdf
+ */
 struct node {
 	Node* prev;
 	Node* next;
@@ -42,14 +45,6 @@ Node list_add_node_head(DoubledLinkedList list, Node* node, void* data);
  * @return a pointer to the node added
  */
 Node list_add_node_tail(DoubledLinkedList list, Node* node, void* data);
-
-/**
- * Search for nodes matching the filter callback function.
- * All matches are added to the destination list, note that it should be already allocated
- * Complexity: O(n)
- * @return void
- */
-void list_search_node(DoubledLinkedList list, DoubledLinkedList dest, int (*match_cb)(void*));
 
 /**
  * Free a node's memory and re-arrange the linked list.

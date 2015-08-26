@@ -163,47 +163,23 @@ void test_linkedlist_free(){
 	list_unshift(l);
 	assert ( n2 == (*l->head) );
 	assert ( n3 == (*l->tail) );
+	list_free(&l);
 }
 
-void test_linkedlist_search(){
-	DoubledLinkedList l = list_new();
-	Node n1, n2, n3;
-	list_add_node_tail(l, &n1, "1");
-	list_add_node_tail(l, &n2, "2");
-	list_add_node_tail(l, &n3, "3");
-	// Copy list
-	DoubledLinkedList out = list_new();
-	void f(Node n){
-		// node->data is pointer to linked list l
-		Node ref = (Node) n->data;
-		if(ref == NULL)
-			printf("Copy is empty");
-		else
-			printf("Copy: %s", ref->data );
-	}
-	int match(void* data){
-		return strcmp(data, "3") == 0;
-	}
-	list_search_node(l, out, match);
-	list_iterate(out, f);
-	list_del_node(l, &n3);
-	list_iterate(out, f);
-	assert ( out->size == 1 );
-	//assert ( (*(out->head)) == n3 );
-	list_free(&l);
+void test_executor(){
 }
 
 int main() {
 	// Tree tests
 	test_binary_tree_traversal();
 	test_binary_tree_free();
-
 	// Linkedlist test
 	test_linkedlist_iterate();
 	test_linkedlist_stack_usage();
 	test_linkedlist_insert();
 	test_linkedlist_free();
-	test_linkedlist_search();
+	// Test executor
+	test_executor();
 	return 0;
 }
 
