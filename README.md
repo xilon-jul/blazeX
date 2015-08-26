@@ -12,6 +12,7 @@
 	- Threads are created on the fly until WORKER_THREAD_TRESHOLD is reached
 	- When reached, jobs are queued and when a thread terminates, it will notify the master pool thread that it can execute the task
 - Any runtime thread that needs to work with IO MUST only __notify__ (as main thread is running inside libev main loop, notify means make the event pending) the main IO thread that data are available for writing and might also re-order the pending IO events to make write event have a highest priority
+
 Notification are done within a job thread, it invokes a specific method that adds the bytes to the buffer associated to a route and then make this route active until there are bytes to consume
 
 
@@ -56,10 +57,14 @@ add each publishers for each campaign node into a field of type array, or more e
 ```
 	
 * Defining a new bucket (updating a bucket structure)
+
+	_Format_: "action";"null char";"bucket";"file";
+
 ```
-	blx> define;campaigns;'{name:"campaign_name", type: string, size: 16 },{ name:"active", type: boolean, size: 8 }'
- 	blx> define;publishers;'{name:"pub_name", type: string, size: 16 }'
- 	blx> r:ok
+	blx> define;\N;bucket;;
+ 	blx> field_name; field_type; field_size; field_default;
+ 	blx> field 
+ 	blx> \.
 ```
 * Copying data to a bucket
 
