@@ -129,6 +129,17 @@ used to define the bucket structure, re-insert the data, and if available re-cre
 	blx> bind; ...
 ```	
 
+* Aggregates
+
+BlazeX is able to aggregate data based on an assignement expression.
+
+	_Format_: aggregate; bucket; filter_expression; declare_expr; "agg_expr"; "end_expr"
+	
+```
+	blx> aggregate;campaigns;"campaign.active = true";"sum_users = 0;"sum_users += campaign.field1";
+	blx> aggregate;campaigns;"campaign.active = false";"avg = 0; s=0";"s += 1";"avg=avg+1";
+```
+
 * List bindings
 
 * Defining a binding
