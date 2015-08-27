@@ -11,9 +11,9 @@
 - Thread pool management
 	- Threads are created on the fly until WORKER_THREAD_TRESHOLD is reached
 	- When reached, jobs are queued and when a thread terminates, it will notify the master pool thread that it can execute the task
-- Any runtime thread that needs to work with IO MUST only __notify__ (as main thread is running inside libev main loop, notify means make the event pending) the main IO thread that data are available for writing and might also re-order the pending IO events to make write event have a highest priority
+- Any runtime thread that needs to work with IO MUST only __notify__ (as main thread is running inside libev main loop, notify means make the event pending) the main IO thread that data are available for writing and might also re-order the pending IO events to make write event have a highest priority.
 
-Notification are done within a job thread, it invokes a specific method that adds the bytes to the buffer associated to a route and then make this route active until there are bytes to consume
+Notification are done within a job thread, it invokes a specific method that adds the bytes to the buffer associated to a route and then make this route active until there are bytes to consume. event_add should be thread safe as many workers would concurrently need to push some IO jobs.
 
 
 ## Overview
@@ -41,7 +41,14 @@ add each publishers for each campaign node into a field of type array, or more e
 * Uses syslog as daemon logging
 
 # Configuration
+```
+pid_file=/var/run/blazeX.conf
 
+[workers]
+nb_processes: 10
+max_worker_threads_per_process: 1
+
+```
 
 # Administration
 
@@ -51,7 +58,7 @@ add each publishers for each campaign node into a field of type array, or more e
 	_Format_: "action"
 	
 ```
-	blx> bucket_list
+	blx> blist
 	campaigns
 	publishers
 ```
@@ -80,8 +87,11 @@ Copying action has 2 forms. The 1st one copies data from the terminal to the buc
 	blx> copy; bucket; \N; field1,field2; file.csv;
 ```
 * Reading data from a bucket
+
+	_Format_: "action"; "bucket"; "select_list"; "expression"
+	
 ```
-	blx> map;campaigns;"campaign_name ~ 'zyn.*' and active = true "
+	blx> map;campaigns;campaign_name,active;"campaign_name ~ 'zyn.*' and active = true "
 	blx> 
 	campaign_name; active;
 	"zynga";"true"
@@ -95,10 +105,29 @@ Copying action has 2 forms. The 1st one copies data from the terminal to the buc
 	blx> "rm";"campaigns";"campaigns.active = false";
 ```
 * Updating a set of field_aggregate
-	** Format: "action"; "bucket_to_update";  "filter_expr"; "update_expr"
+	_Format:_ "action"; "bucket_to_update";  "filter_expr"; "update_expr"
 ```
 	blx> update;campaigns;active=true;active=false;
 ```
+
+* Dumping a bucket
+
+Dumping a bucket does not dump bound data with user-defined bindings. Instead, it will contain the commands
+used to define the bucket structure, re-insert the data, and if available re-create the bindings
+
+
+	_Format:_ "dump"; "bucket"; "select_list"; file.csv;
+	
+```
+	blx> dump;campaigns;campaign_name,active; dump.csv
+	blx> define;\N;bucket;;
+	...
+	blx> \.
+	blx> copy ...
+	....
+	blx> \.
+	blx> bind; ...
+```	
 
 * List bindings
 
@@ -107,7 +136,6 @@ Copying action has 2 forms. The 1st one copies data from the terminal to the buc
 	_Format_: "action";"bind target";"bind source";"bind expression";
 
 ```
-	blx> # For each publisher that have a ranking > 0, bind any campaign
 	blx> bind;campaigns;publishers;"campaign.name = 'zynga'"; "publisher.type 
 ```
 # In-memory database storage
@@ -143,8 +171,7 @@ struct blx_db_data_field_value {
 void* blx_db_read_data_field(struct blx_db_bucket* bucket, struct blx_db_data_field_value* data_field_value, struct blx_language_expr expr){
 }
 
-
-``̀
+```
  
 ## Shared memory internal
 [See shm usage](http://www.cs.cf.ac.uk/Dave/C/node27.html)
@@ -153,7 +180,7 @@ void* blx_db_read_data_field(struct blx_db_bucket* bucket, struct blx_db_data_fi
 Query language **MUST** rely on a simple form to reduce parsing time. As all we need to store can fit into a tabular format, we will stick to CSV.
 
 A query response **MUST AVOID** copying the original when streaming back the result. In the worst case, it should **ONLY** maintain a pointer to the orignal node in the list containing the bytes
-to be streamed. **Note** that some query might return data that are taken from a node's content, therefor, the data must be copied and the copy must be kept until it gets streamed.
+to be streamed. **Note** that some query might return data that are not taken from a node's content, therefor, the data must be copied and the copy must be kept until it gets streamed.
 
 
 ### How can we interact with a data set ?
