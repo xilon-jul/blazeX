@@ -133,21 +133,30 @@ used to define the bucket structure, re-insert the data, and if available re-cre
 
 BlazeX is able to aggregate data based on an assignement expression.
 
-	_Format_: aggregate; bucket; filter_expression; declare_expr; "agg_expr"; "end_expr"
+	_Format_: aggregate; bucket; declare_expr; "agg_expr"; "end_expr"; "group_expr"
+
+Where:  
+	- bucket defines the main bucket that will be aggregated
+	- declare_expr declares request variable to store aggregates result
+	- agg_expr defines an expression on which to compute aggregate
+	- end_expr defines a one-time computation and has access to variable declared on this request scope
+	- group_expr defines the group of field on which to compute aggregate
 	
 ```
-	blx> aggregate;campaigns;"campaign.active = true";"sum_users = 0;"sum_users += campaign.field1";
-	blx> aggregate;campaigns;"campaign.active = false";"avg = 0; s=0";"s += 1";"avg=avg+1";
+# Case 1: count distinct name
+	aggregate; students; "count=0"; "count += 1";;"students.name"
+# Case 2: cout average note by students
+	aggregate; students; "count=0; avg=0"; "count += 1; notes += students->examination.note";" avg= notes/count"; "students.name" 
 ```
 
 * List bindings
 
 * Defining a binding
 
-	_Format_: "action";"bind target";"bind source";"bind expression";
+	_Format_: action;bind target;bind source;bind expr;
 
 ```
-	blx> bind;campaigns;publishers;"campaign.name = 'zynga'"; "publisher.type 
+	blx> bind;campaigns;publishers;"(campaign.name = 'zynga' and publisher.category ~ '.*game') or (campaign.name = 'test' and true)" 
 ```
 # In-memory database storage
 
@@ -190,6 +199,12 @@ void* blx_db_read_data_field(struct blx_db_bucket* bucket, struct blx_db_data_fi
 ## Query language definition
 Query language **MUST** rely on a simple form to reduce parsing time. As all we need to store can fit into a tabular format, we will stick to CSV.
 
+It should be make easy to compute an aggregate on a group of fields, to filter a list, to compute max, avg, min of a field.
+
+## "sum"; "s += 1";field1, field2;
+k = key(field,field2);
+// hashmap[key];
+
 A query response **MUST AVOID** copying the original when streaming back the result. In the worst case, it should **ONLY** maintain a pointer to the orignal node in the list containing the bytes
 to be streamed. **Note** that some query might return data that are not taken from a node's content, therefor, the data must be copied and the copy must be kept until it gets streamed.
 
@@ -207,6 +222,7 @@ Supported operators :
 - op1 **/** op2
 - op1 **x** op2
 - var **=** expr
+- ? ( boolean_expr: expr ) : Evaluates expr only if boolean_expr returns true
 
 ## Bench
 
